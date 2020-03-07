@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "ml6.h"
 #include "display.h"
@@ -19,6 +20,10 @@
 void add_circle( struct matrix *edges,
                  double cx, double cy, double cz,
                  double r, double step ) {
+  for(double i = 0; i < 1; i += step){
+    add_edge(edges, cx + r * cos(2 * M_PI * i), cy + r * sin(2 * M_PI * i), cz,
+              cx + r * cos(2 * M_PI * (i + step)), cy + r * sin(2 * M_PI * (i+step)), cz );
+  }
 }
 
 /*======== void add_curve() ==========
@@ -44,6 +49,36 @@ void add_curve( struct matrix *edges,
                 double x2, double y2, 
                 double x3, double y3, 
                 double step, int type ) {
+  
+  struct matrix * x_co = new_matrix(4,1);
+  struct matrix * y_co = new_matrix(4,1);
+  x_co = generate_curve_coefs(x0,x1,x2,x3,type);
+  y_co = generate_curve_coefs(y0,y1,y2,y3,type);
+
+  //coefficent of x array
+  double ax = x_co->m[0][0];
+  double bx = x_co->m[1][0];
+  double cx = x_co->m[2][0];
+  double dx = x_co->m[3][0];
+
+  //coefficent of y array
+  double ay = y_co->m[0][0];
+  double by = y_co->m[1][0];
+  double cy = y_co->m[2][0];
+  double dy = y_co->m[3][0];
+
+  double px = x0;
+  double py = y0;
+  double x;
+  double y;
+  for (double i = step; i < 1; i += step){
+    x = (ax * i * i * i) + (bx * i * i) + (cx * i) + (dx);
+    y = (ay * i * i * i) + (by * i * i) + (cy * i) + (dy);
+    add_edge(edges, px, py, 0, x, y, 0);
+    px = x;
+    py = y;
+  }
+  
 }
 
 
